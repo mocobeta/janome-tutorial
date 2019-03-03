@@ -1,0 +1,2 @@
+テキストデータは，[Project Gutenberg](https://www.gutenberg.org/) および [青空文庫](https://www.aozora.gr.jp/index.html) のデータを一部改変して利用しています。
+ハンズオンの演習以外での利用は控えてください。

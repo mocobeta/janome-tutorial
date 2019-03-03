@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <meta name="author" content="Tomoko Uchida" />
+  <title>Janome ではじめるテキストマイニング</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" type="text/css" media="screen, projection, print"
+    href="notebook.css" />
+  <script src="./Slidy2/scripts/slidy.js"
+    charset="utf-8" type="text/javascript"></script>
+</head>
+<body>
+<div class="slide titlepage">
+  <h1 class="title">Janome ではじめるテキストマイニング</h1>
+  <p class="author">
+Tomoko Uchida
+  </p>
+  <p class="date">Last Updated 2019.03.03</p>
+</div>
+<div id="このチュートリアルハンズオンについて" class="slide section level2">
+<h2>このチュートリアル（ハンズオン）について</h2>
+<ul>
+<li><a href="https://python-beginners-okinawa.connpass.com/event/111732/">PythonBeginners沖縄 (2018/12/23)</a> の <a href="https://github.com/mocobeta/PyBeginners201812">ハンズオン教材</a> を，Google Colab 上で実行できるようにしたものです。</li>
+<li>Web ブラウザがあれば，手元に Python 環境がなくても実施できます。</li>
+<li>テキストマイニング・自然言語処理をこれから始めてみたい方を対象に，形態素解析，WordCloud, テキスト前処理/後処理，TFIDF など，ごく基本的な知識をつけてもらうことを目的としています。</li>
+<li>テキストマイニング・自然言語処理の予備知識は不要ですが，Python の読み書きがある程度できたほうがスムーズに進められます。</li>
+<li>はじめる前に，GitHub の <a href="https://github.com/mocobeta/janome-tutorial">janome-tutorial</a> リポジトリをチェックアウトしておいてください。</li>
+<li>不具合，要望，ご意見の連絡は <a href="https://twitter.com/moco_beta">moco_beta</a> (Twitter) か GitHub リポジトリの issue でお寄せください。</li>
+</ul>
+</div>
+<div id="who-am-i" class="slide section level2">
+<h2>Who am I</h2>
+<div class="figure">
+  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+<img src="image/neko.png" width="80" />
+
+</div>
+<ul>
+<li>Twitter: <span class="citation">@moco_beta</span></li>
+<li>ソフトウェアエンジニア (Web開発, 検索/自然言語処理 が好き)</li>
+<li><a href="https://mocobeta.github.io/janome/">Janome</a> 開発者</li>
+<li><a href="https://github.com/DmitryKey/luke">Luke: Lucene Toolbox Project</a> メンテナー</li>
+<li><a href="http://gihyo.jp/book/2017/978-4-7741-8930-7">改訂3版 Apache Solr 入門</a> 共著者</li>
+</ul>
+</div>
+<div id="はじめよう" class="slide titlepage">
+<h2>はじめよう</h2>
+<h3 id="形態素解析-wordcloud">形態素解析 〜 WordCloud</h3>
+<div class="figure">
+<img src="image/janome.jpg" width="400" />
+
+</div>
+</div>
+<div id="janome-紹介" class="slide section level2">
+<h2>Janome 紹介</h2>
+<ul>
+<li>Pure Python で書かれた，辞書内包の形態素解析ライブラリ</li>
+</ul>
+<pre><code>(venv) $ pip install janome
+(venv) $ python
+&gt;&gt;&gt; from janome.tokenizer import Tokenizer
+&gt;&gt;&gt; t = Tokenizer()
+&gt;&gt;&gt; for token in t.tokenize(&#39;すもももももももものうち&#39;):
+...     print(token)
+... 
+すもも 名詞,一般,*,*,*,*,すもも,スモモ,スモモ
+も   助詞,係助詞,*,*,*,*,も,モ,モ
+もも  名詞,一般,*,*,*,*,もも,モモ,モモ
+も   助詞,係助詞,*,*,*,*,も,モ,モ
+もも  名詞,一般,*,*,*,*,もも,モモ,モモ
+の   助詞,連体化,*,*,*,*,の,ノ,ノ
+うち  名詞,非自立,副詞可能,*,*,*,うち,ウチ,ウチ</code></pre>
+</div>
+<div id="特徴" class="slide section level2">
+<h2>特徴</h2>
+<ul>
+<li>辞書，言語モデルは mecab-ipadic-2.7.0-20070801 を使用</li>
+<li>=&gt; だいたいは MeCab と同じ解析結果になります。未知語処理で差異がでます</li>
+<li>Pure Python かつ標準ライブラリのみ使用</li>
+<li>=&gt; 環境問わずだいたいどこでも動く (RAM 2GB 以上推奨)</li>
+<li>ユーザー辞書サポート</li>
+<li>=&gt; MeCab 辞書フォーマット / Kuromoji ライクな簡略フォーマット</li>
+<li>=&gt; 手軽に単語追加が試せます</li>
+</ul>
+</div>
+<div id="janome-を支えるアルゴリズム" class="slide section level2">
+<h2>Janome を支えるアルゴリズム</h2>
+<p>すもも / も / もも / も / もも / の / うち</p>
+<p>名詞 / 助詞 / 名詞 / 助詞 / 名詞 / 助詞 / 名詞</p>
+<h3 id="必要な知識">必要な知識</h3>
+<ul>
+<li>語彙: 「すもも」「もも」という名詞，「も」「の」という助詞（辞書）</li>
+<li>日本語らしさ: 名詞のあとには助詞がきやすい（言語モデル）</li>
+</ul>
+</div>
+<div id="janome-を支えるアルゴリズム-1" class="slide section level2">
+<h2>Janome を支えるアルゴリズム</h2>
+<h3 id="辞書と言語モデル">辞書と言語モデル</h3>
+<ul>
+<li>人手で整備</li>
+<li>コーパス（学習データ）から教師あり機械学習</li>
+<li>一般にはこのハイブリッド</li>
+<li>Janome は既存の辞書/言語モデルである mecab-ipadic を借用しています</li>
+</ul>
+</div>
+<div id="janome-を支えるアルゴリズム-2" class="slide section level2">
+<h2>Janome を支えるアルゴリズム</h2>
+<ul>
+<li>Janome で実装したのは，いわゆる解析エンジン部分</li>
+<li>辞書引き: PyConJP 2015 で発表した時の<a href="https://www.slideshare.net/tomokouchida505/pyconjp2015-python">資料</a>で解説しています</li>
+<li>解析実行: 解析対象の文字列を受け取って，もっとも「日本語らしい」分割ポイントをさがす</li>
+</ul>
+</div>
+<div id="解析の様子をみてみよう" class="slide section level2">
+<h2>解析の様子をみてみよう</h2>
+<ul>
+<li>v0.3.7 から，ラティスグラフの可視化ができるようになりました（※ 要 Graphviz）</li>
+</ul>
+<pre><code>(venv) $ echo &quot;ご飯論法&quot; | janome -g
+ご飯  名詞,一般,*,*,*,*,ご飯,ゴハン,ゴハン
+論法  名詞,一般,*,*,*,*,論法,ロンポウ,ロンポー
+Graph was successfully output to lattice.gv.png</code></pre>
+<div class="figure">
+<img src="image/lattice.gv.png" width="1000" />
+
+</div>
+</div>
+<div id="ハンズオン-0.-google-colab-の練習" class="slide section level2">
+<h2>ハンズオン 0. Google Colab の練習</h2>
+<p>ハンズオン（演習）は Google Colab 環境で行います。</p>
+<p><a href="https://colab.research.google.com/drive/1ayYqeCEHoAv07MQxTWCDE0NIQc-cEpOu" class="uri">https://colab.research.google.com/drive/1ayYqeCEHoAv07MQxTWCDE0NIQc-cEpOu</a></p>
+<p>にアクセスして，Google Colab の使い方に慣れましょう。</p>
+</div>
+<div id="ハンズオン-1.-はじめよう" class="slide section level2">
+<h2>ハンズオン 1. はじめよう！</h2>
+<p><a href="https://colab.research.google.com/drive/12CxsYiA1V5e1lHJ0Q95G7G-sjZx5YqWc" class="uri">https://colab.research.google.com/drive/12CxsYiA1V5e1lHJ0Q95G7G-sjZx5YqWc</a></p>
+<ul>
+<li>Janome CLI を使いこなそう</li>
+<li>Janome API を使いこなそう</li>
+<li>ユーザー定義辞書を使いこなそう</li>
+</ul>
+<p>にチャレンジ！</p>
+</div>
+<div id="ハンズオン-2.-wordcloud" class="slide section level2">
+<h2>ハンズオン 2. WordCloud</h2>
+<p><a href="https://colab.research.google.com/drive/1xI-Uwedy-lvv689o7-u0N8Jg6i7vLoxG" class="uri">https://colab.research.google.com/drive/1xI-Uwedy-lvv689o7-u0N8Jg6i7vLoxG</a></p>
+<ul>
+<li>英語のテキストから WordCloud を作る</li>
+<li>日本語のテキストから WordCloud を作る</li>
+</ul>
+<p>にチャレンジ！</p>
+</div>
+<div id="前処理と後処理" class="slide titlepage">
+<h2>前処理と後処理</h2>
+<h3 id="analyzer-framework">Analyzer Framework</h3>
+<div class="figure">
+<img src="./image/analyzer.png" />
+
+</div>
+</div>
+<div id="だいじな前処理便利な後処理" class="slide section level2">
+<h2>だいじな前処理，便利な後処理</h2>
+<ul>
+<li>形態素解析だけでは，現実のテキスト分析ニーズとはたたかえない</li>
+</ul>
+<div class="figure">
+<img src="./image/analyzer-bear-1.png" width="900" />
+
+</div>
+</div>
+<div id="だいじな前処理便利な後処理-1" class="slide section level2">
+<h2>だいじな前処理，便利な後処理</h2>
+<ul>
+<li>形態素解析だけでは，現実のテキスト分析ニーズとはたたかえない</li>
+</ul>
+<div class="figure">
+<img src="./image/analyzer-bear-2.png" width="900" />
+
+</div>
+</div>
+<div id="だいじな前処理便利な後処理-2" class="slide section level2">
+<h2>だいじな前処理，便利な後処理</h2>
+<ul>
+<li>形態素解析だけでは，現実のテキスト分析ニーズとはたたかえない</li>
+</ul>
+<div class="figure">
+<img src="./image/analyzer-bear-3.png" width="900" />
+
+</div>
+</div>
+<div id="analyzer-フレームワーク" class="slide section level2">
+<h2>Analyzer フレームワーク</h2>
+<ul>
+<li>Analyzer は，形態素解析の前処理・後処理をテンプレ化するためのフレームワークです。下記のクラスを含みます</li>
+<li>文字の正規化などの前処理を行う CharFilter クラス</li>
+<li>小文字化，品詞によるトークンのフィルタリングなど，形態素解析後の後処理を行う TokenFilter クラス</li>
+<li>CharFilter, Tokenizer, TokenFilter を組み合わせてカスタム解析フローを組み立てる Analyzer クラス</li>
+</ul>
+</div>
+<div id="analyzer-フレームワーク-1" class="slide section level2">
+<h2>Analyzer フレームワーク</h2>
+<div class="figure">
+<img src="./image/analyzer-2.png" />
+
+</div>
+</div>
+<div id="analyzer-フレームワーク-2" class="slide section level2">
+<h2>Analyzer フレームワーク</h2>
+<pre><code>&gt;&gt;&gt; from janome.tokenizer import Tokenizer
+&gt;&gt;&gt; from janome.analyzer import Analyzer
+&gt;&gt;&gt; from janome.charfilter import *
+&gt;&gt;&gt; from janome.tokenfilter import *
+&gt;&gt;&gt; text = &#39;Ｐｙｔｈｏｎで形態素解析&#39;
+&gt;&gt;&gt; char_filters = [UnicodeNormalizeCharFilter()]
+&gt;&gt;&gt; token_filters = [POSStopFilter([&#39;記号&#39;,&#39;助詞&#39;]), LowerCaseFilter()]
+&gt;&gt;&gt; tokenizer = Tokenizer()
+&gt;&gt;&gt; a = Analyzer(char_filters, tokenizer, token_filters)
+&gt;&gt;&gt; for token in a.analyze(text):
+...     print(token)
+... 
+python  名詞,一般,*,*,*,*,python,*,*
+形態素 名詞,一般,*,*,*,*,形態素,ケイタイソ,ケイタイソ
+解析  名詞,サ変接続,*,*,*,*,解析,カイセキ,カイセキ</code></pre>
+</div>
+<div id="ビルトイン-charfilter" class="slide section level2">
+<h2>ビルトイン CharFilter</h2>
+<p>(2019/3 現在)</p>
+<ul>
+<li>RegexReplaceCharFilter : 入力文字列の，指定された正規表現にマッチする箇所を指定の文字列で置換します</li>
+<li>UnicodeNormalizeCharFilter : 入力文字列をユニコード正規化します</li>
+</ul>
+</div>
+<div id="ビルトイン-tokenfilter" class="slide section level2">
+<h2>ビルトイン TokenFilter</h2>
+<p>(2019/3 現在)</p>
+<ul>
+<li>LowerCaseFilter : 表層形の小文字化を行います</li>
+<li>UpperCaseFilter : 表層形の大文字化を行います</li>
+<li>POSStopFilter : 指定された品詞タグにマッチするトークンを除去します</li>
+<li>POSKeepFilter : 指定された品詞タグにマッチするトークンのみ残し，その他を除去します</li>
+<li>CompoundNounFilter : 連続する名詞をひとつにまとめ，複合名詞にします。まとめられたトークンには「名詞,複合」という特殊な品詞がつきます</li>
+<li>ExtractAttributeFilter : 指定された属性（プロパティ）を各トークンから抽出します</li>
+<li>TokenCountFilter : 入力文字列中の単語ごとの出現頻度を数えます</li>
+</ul>
+</div>
+<div id="ハンズオン-3.-analyzer" class="slide section level2">
+<h2>ハンズオン 3. Analyzer</h2>
+<p><a href="https://colab.research.google.com/drive/109TJG4dH5Q07cdv4jhB1DeQHQ3zLz9G3" class="uri">https://colab.research.google.com/drive/109TJG4dH5Q07cdv4jhB1DeQHQ3zLz9G3</a></p>
+<ul>
+<li>ワードカウント</li>
+<li>カスタムフィルター</li>
+<li>WordCloud 再考</li>
+</ul>
+<p>にチャレンジ！</p>
+</div>
+<div id="特徴語抽出" class="slide titlepage">
+<h2>特徴語抽出</h2>
+<h3 id="tfidf-用語抽出">TFIDF, 用語抽出</h3>
+</div>
+<div id="bow-bag-of-words-と-ベクトル化と-tfidf" class="slide section level2">
+<h2>BoW (Bag of Words) と ベクトル化と TFIDF</h2>
+<div class="figure">
+<img src="image/bow.png" />
+
+</div>
+</div>
+<div id="bow-bag-of-words-と-ベクトル化と-tfidf-1" class="slide section level2">
+<h2>BoW (Bag of Words) と ベクトル化と TFIDF</h2>
+<div class="figure">
+<img src="image/docvector.png" />
+
+</div>
+</div>
+<div id="bow-bag-of-words-と-ベクトル化と-tfidf-2" class="slide section level2">
+<h2>BoW (Bag of Words) と ベクトル化と TFIDF</h2>
+<p>ベクトルの要素（値）の決め方はいろいろある</p>
+<ol style="list-style-type: decimal">
+<li>単語あり/なしだけを表現 : 1 or 0</li>
+<li>単語の出現回数をそのまま使う : 0 以上の整数値</li>
+<li>（そのドキュメントにおける）単語の「重要度」を計算する</li>
+</ol>
+<p>3 の重要度には，伝統的に TFIDF のバリエーションが使われることが多い</p>
+<p>いろいろな TFIDF : <a href="https://nlp.stanford.edu/IR-book/html/htmledition/document-and-query-weighting-schemes-1.html">Document and query weighting schemes</a></p>
+<div class="figure">
+<img src="image/tfidf.png" />
+
+</div>
+</div>
+<div id="キーワード抽出" class="slide section level2">
+<h2>キーワード抽出</h2>
+<ul>
+<li>固有表現抽出（人名，地名，日付表現，組織名，etc.）</li>
+<li>ex. 係り受け解析器 <a href="https://taku910.github.io/cabocha/">CaboCha</a> に付属</li>
+<li>Entity Linking / Wikification</li>
+<li>Key Phrase Extraction</li>
+<li>ex. <a href="https://github.com/boudinfl/pke">pke - Python Keyphrase Extraction module</a></li>
+<li>Burst Detection</li>
+<li>ex. Jubatus (<a href="http://jubat.us/ja/api/api_burst.html">jubaburst</a>)</li>
+</ul>
+</div>
+<div id="termextract" class="slide section level2">
+<h2>termextract</h2>
+<p>専門用語（キーワード）自動抽出 Python モジュール termextract</p>
+<ul>
+<li><a href="http://gensen.dl.itc.u-tokyo.ac.jp/pytermextract/" class="uri">http://gensen.dl.itc.u-tokyo.ac.jp/pytermextract/</a></li>
+<li>MeCab または janome を使ったサンプルスクリプトが同梱されているので，手軽に試せます</li>
+</ul>
+</div>
+<div id="ハンズオン-4.-キーワード抽出" class="slide section level2">
+<h2>ハンズオン 4. キーワード抽出</h2>
+<p><a href="https://colab.research.google.com/drive/11obx4RtQP6Z_EqfRoKaz4Fa_FKoBKi4M" class="uri">https://colab.research.google.com/drive/11obx4RtQP6Z_EqfRoKaz4Fa_FKoBKi4M</a></p>
+<ul>
+<li>BoW と TFIDF with gensim</li>
+<li>termextract (専門用語抽出)</li>
+</ul>
+<p>にチャレンジ！</p>
+</div>
+<div id="appendix-使用しているソフトウェア" class="slide section level2">
+<h2>Appendix 使用しているソフトウェア</h2>
+<p>このハンズオンをローカル環境で実行する時に必要なソフトウェアです。</p>
+<p>Python ライブラリ</p>
+<ul>
+<li>Jupyter Notebook : https://jupyter.org/install (これはなくても良い)</li>
+<li>Janome : https://mocobeta.github.io/janome/</li>
+<li>wordcloud : https://github.com/amueller/word_cloud</li>
+<li>gensim : https://radimrehurek.com/gensim/</li>
+<li>termextract : http://gensen.dl.itc.u-tokyo.ac.jp/pytermextract/</li>
+</ul>
+<p>パッケージソフト，その他</p>
+<ul>
+<li>Graphviz : https://www.graphviz.org/</li>
+<li>IPA フォント : https://ipafont.ipa.go.jp/old/ipafont/download.html</li>
+</ul>
+</div>
+</body>
+</html>
