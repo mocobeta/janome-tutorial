@@ -9,10 +9,9 @@
 - はじめる前に，GitHub の [janome-tutorial](https://github.com/mocobeta/janome-tutorial) リポジトリをチェックアウトしておいてください。
 - 不具合，要望，ご意見の連絡は [moco_beta](https://twitter.com/moco_beta) (Twitter) か GitHub リポジトリの issue でお寄せください。
 
-チュートリアル資料はこちら:
+チュートリアル資料(HTML)はこちら:
 
-- [HTML]()
-- [PDF]()
+- [Janome ではじめるテキストマイニング](http://mocobeta.github.io/slides-html/janome-tutorial/tutorial-slides.html)
 
 ハンズオン教材（Google Colab Notebooks）
 
