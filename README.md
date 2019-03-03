@@ -19,5 +19,5 @@
 0. [Google Colab の練習](https://colab.research.google.com/drive/1ayYqeCEHoAv07MQxTWCDE0NIQc-cEpOu)
 1. [はじめよう](https://colab.research.google.com/drive/12CxsYiA1V5e1lHJ0Q95G7G-sjZx5YqWc)
 2. [WordCloud](https://colab.research.google.com/drive/1xI-Uwedy-lvv689o7-u0N8Jg6i7vLoxG)
-3. [Analyzer](https://colab.research.google.com/drive/1iJU7opDblIc0IIIeAFhgOClibO8T3I1k)
-4. [キーワード抽出](https://colab.research.google.com/drive/1iJU7opDblIc0IIIeAFhgOClibO8T3I1k)
+3. [Analyzer](https://colab.research.google.com/drive/109TJG4dH5Q07cdv4jhB1DeQHQ3zLz9G3)
+4. [キーワード抽出](https://colab.research.google.com/drive/11obx4RtQP6Z_EqfRoKaz4Fa_FKoBKi4M#scrollTo=whtmfdcVKSug)
